@@ -45,12 +45,12 @@ To get started with this project, follow these steps:
 
 To run the application, use the following command:
 ```bash
-streamlit run file1.py
+streamlit run app.py
 ```
-
+![App Screenshot](images\Screenshot 2025-02-06 211828.png)
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE.md) file for details.
 
 ## Contact
 
