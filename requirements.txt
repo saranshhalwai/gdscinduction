@@ -6,7 +6,7 @@ huggingface_hub
 langchain_groq  
 sentence-transformers  
 faiss-cpu  
-docx  
+python-docx  
 whisper  
 TTS  
 streamlit_mic_recorder  
