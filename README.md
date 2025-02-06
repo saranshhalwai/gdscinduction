@@ -47,7 +47,7 @@ To run the application, use the following command:
 ```bash
 streamlit run app.py
 ```
-![App Screenshot](images\scnshot1.png)
+![App Screenshot](images/scnshot1.png)
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE.md) file for details.
