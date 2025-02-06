@@ -1,11 +1,59 @@
+# Chatbot with RAG + Mic
 
+Welcome to the Chatbot with RAG + Mic project! This project demonstrates how to build a chatbot using Retrieval-Augmented Generation (RAG) and includes a built-in microphone for speech-to-text (STT) functionality.
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla sem magna, sagittis aliquet eros id, consectetur euismod felis. Pellentesque ut cursus neque. Mauris iaculis dolor eget tellus pretium malesuada. Praesent id vehicula orci, in pulvinar odio. Donec laoreet massa id accumsan congue. Donec id urna lorem. Suspendisse id quam imperdiet, pulvinar lacus nec, pulvinar elit. Nunc ut ligula pharetra, pharetra elit ut, lacinia dui. Praesent ac finibus velit. Donec efficitur eros diam, et pellentesque felis pulvinar sed.
+## Getting Started
 
-Sed pharetra, neque in viverra sagittis, urna mi mollis nunc, eget cursus ligula odio maximus diam. Suspendisse venenatis leo ut ante malesuada, at convallis lorem fermentum. Praesent est urna, volutpat tincidunt libero mattis, venenatis consectetur urna. Praesent auctor est ultrices ipsum tincidunt, ac tempor magna pellentesque. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin molestie velit suscipit massa dapibus, a ultricies est dictum. Morbi tortor leo, pulvinar vitae lacus sit amet, mattis rutrum lectus. Phasellus et ornare magna. Proin placerat fermentum tincidunt. Suspendisse quis blandit lacus. Sed nec fermentum augue, vitae tristique diam. Vestibulum mollis erat ac libero blandit, eget egestas dui placerat. Sed eu ultricies ligula, a commodo libero. Nullam convallis eget lorem id tempor.
+To get started with this project, follow these steps:
 
-Phasellus consequat imperdiet convallis. Aliquam lorem nisi, faucibus vel enim non, feugiat ornare sapien. Mauris et viverra velit. Etiam congue mi ac consectetur faucibus. Nunc sollicitudin arcu in justo dapibus ornare. Nam imperdiet sollicitudin elit, vel posuere leo. Etiam fringilla, ante eget pharetra pulvinar, sapien elit dictum tortor, quis rutrum mauris est non neque. Aliquam at tristique sapien. Nullam ultricies suscipit dui, non commodo justo. Donec interdum augue eget odio lacinia, eu vehicula tortor lobortis. Suspendisse sagittis sapien vitae fermentum vestibulum. Donec tempus, magna in eleifend finibus, enim orci scelerisque erat, sed semper mi diam et nisl. Fusce sed risus quis lacus dignissim tempor quis quis nibh. Ut commodo finibus felis non iaculis.
+1. **Clone the repository**:
+    ```bash
+    git clone https://github.com/saranshhalwai/gdscinduction.git
+    ```
+2. **Navigate to the project directory**:
+    ```bash
+    cd gdscinduction
+    ```
+3. **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-In volutpat, eros ut aliquam ullamcorper, ligula nisl tempor massa, eget finibus diam nisi non enim. Fusce et sodales magna. Etiam iaculis, quam eget ultricies commodo, nisl nisi blandit felis, vel cursus est arcu at dolor. Morbi aliquam id nulla nec aliquam. Etiam quis dui volutpat, bibendum libero sit amet, rhoncus felis. Integer sed tincidunt justo. Pellentesque rutrum lectus nec tincidunt scelerisque. Curabitur porta eros eu augue tincidunt, sit amet dapibus ipsum lobortis. Pellentesque ac tempor nunc, vel cursus enim. Etiam tempus iaculis risus, in consectetur augue. Nullam placerat convallis dui, vel cursus mauris feugiat varius.
+## Project Structure
 
-Donec vulputate nec sem non ornare. Duis condimentum sapien eu nisi gravida dictum. Nulla facilisi. Integer dictum nisi diam, eu porta nisl semper semper. Vestibulum non urna ut eros bibendum iaculis non mattis orci. Mauris erat felis, scelerisque quis tincidunt eget, tempus ac quam. Fusce euismod neque at libero iaculis ullamcorper. Donec commodo, libero ut egestas placerat, turpis lorem condimentum lacus, in mollis odio sem in magna. Aenean pretium at leo eget consequat. 
+- `file1.py`: Contains the main code for the chatbot with RAG and mic functionality.
+- `requirements.txt`: Lists the dependencies required for the project.
+
+## How It Works
+
+1. **Document Processing**:
+    - Loads a `.docx` file and processes its content.
+    - Splits the document into chunks using `RecursiveCharacterTextSplitter`.
+    - Converts the chunks into embeddings using `HuggingFaceEmbeddings` and stores them in a FAISS index.
+
+2. **Chatbot Functionality**:
+    - Uses the FAISS index to retrieve relevant document chunks based on user queries.
+    - Generates responses using the Groq API with the retrieved context.
+
+3. **Speech-to-Text (STT)**:
+    - Uses the Whisper model to transcribe audio input from the microphone.
+
+4. **Text-to-Speech (TTS)**:
+    - Converts the chatbot's text responses into speech using the TTS API.
+
+## Running the Application
+
+To run the application, use the following command:
+```bash
+streamlit run file1.py
+```
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+## Contact
+
+If you have any questions, feel free to reach out to us at [saransh2304@gmail.com](mailto:saransh2304@gmail.com).
+
+Happy coding!
