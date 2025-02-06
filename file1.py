@@ -7,6 +7,7 @@ from langchain.docstore.document import Document
 from docx import Document as DocxDocument
 import whisper
 from TTS.api import TTS
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 # Set API key
 api_key = os.getenv("GROQ_API_KEY")
@@ -25,40 +26,40 @@ try:
     text = "\n".join([p.text for p in doc.paragraphs])
     if not text.strip():
         raise ValueError("The document is empty!")
-
+    
+    # Split the document into smaller chunks
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=1000,  # chunk size (characters)
+        chunk_overlap=200,  # chunk overlap (characters)
+        add_start_index=True,  # track index in original document
+    )
     docs = [Document(page_content=text)]
+    all_splits = text_splitter.split_documents(docs)
 except Exception as e:
     st.error(f"Error loading file: {e}")
     st.stop()
 
 # Convert to embeddings and store in FAISS
 embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-db = FAISS.from_documents(docs, embeddings)
+db = FAISS.from_documents(all_splits, embeddings)
 
 # Save FAISS index
 db.save_local("faiss_index")
 
-# Function to handle RAG-based chatbot response
 def chat_with_rag(query):
-    # Retrieve relevant documents (Reduced k=1 to avoid long context)
-    retrieved_docs = db.similarity_search(query, k=2)
+    # Retrieve relevant documents (Reduced k=2 to avoid long context)
+    retrieved_docs = db.similarity_search(query, k=3)
     context = "\n".join([doc.page_content for doc in retrieved_docs])
-
-    # Trim context if too long
-    max_context_length = 1000  # Limit characters to prevent exceeding token limits
-    if len(context) > max_context_length:
-        context = context[:max_context_length] + "..."
-
+    
     # Generate response using Groq API
     completion = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
         messages=[{"role": "user", "content": f"User Query: {query}\n\nRelevant Context:\n{context}\n\nChatbot:"}],
         temperature=0.6,
-        max_tokens=500,  # Reduced max tokens to avoid exceeding limits
+        max_tokens=500,
         top_p=0.95,
         stream=False,
     )
-
     return completion.choices[0].message.content
 
 # Initialize Whisper for speech-to-text
@@ -92,14 +93,14 @@ uploaded_audio = st.file_uploader("Upload a voice file:", type=["wav", "mp3"])
 if uploaded_audio:
     with open("temp_audio.wav", "wb") as f:
         f.write(uploaded_audio.read())
-
+    
     transcribed_text = transcribe_audio("temp_audio.wav")
     st.write("Transcribed Text:", transcribed_text)
-
+    
     # Get response from chatbot
     response = chat_with_rag(transcribed_text)
     st.write(response)
-
+    
     # Convert to speech
     text_to_speech(response)
     st.audio("output.wav")
