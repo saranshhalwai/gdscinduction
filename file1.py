@@ -1,8 +1,8 @@
 import os
 import streamlit as st
 from groq import Groq
-from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.vectorstores import FAISS
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.vectorstores import FAISS
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.docstore.document import Document as LangchainDocument
 from docx import Document as DocxDocument
