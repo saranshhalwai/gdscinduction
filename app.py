@@ -11,6 +11,7 @@ from TTS.api import TTS
 from streamlit_mic_recorder import mic_recorder  # Streamlit mic recorder
 
 st.set_page_config(page_title="Chatbot with RAG + Mic", layout="centered")
+
 # Set API key
 api_key = os.getenv("GROQ_API_KEY")
 if not api_key:
@@ -41,20 +42,46 @@ embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-
 db = FAISS.from_documents(all_splits, embeddings)
 db.save_local("faiss_index")
 
-# Function to handle RAG-based chatbot response
-def chat_with_rag(query):
+# Conversation history
+if "history" not in st.session_state:
+    st.session_state.history = []
+
+# Multi-step retrieval function
+def multi_step_retrieval(query):
     retrieved_docs = db.similarity_search(query, k=3)
-    context = "\n".join([doc.page_content for doc in retrieved_docs])
+    expanded_context = "\n".join([doc.page_content for doc in retrieved_docs])
+    return expanded_context
+
+# Conversational chatbot function
+def chat_with_rag(query):
+    context = multi_step_retrieval(query)
+    history_str = "\n".join([f"User: {h['user']}\nBot: {h['bot']}" for h in st.session_state.history])
+    
+    prompt = f"""
+    You are an intelligent chatbot with access to relevant knowledge. Maintain a conversational tone.
+    
+    Past Conversation:
+    {history_str}
+    
+    User Query: {query}
+    
+    Relevant Context:
+    {context}
+    
+    Respond naturally and informatively.
+    """
     
     completion = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
-        messages=[{"role": "user", "content": f"User Query: {query}\n\nRelevant Context:\n{context}\n\nChatbot:"}],
+        messages=[{"role": "user", "content": prompt}],
         temperature=0.6,
         max_tokens=500,
         top_p=0.95,
         stream=False,
     )
-    return completion.choices[0].message.content
+    response = completion.choices[0].message.content
+    st.session_state.history.append({"user": query, "bot": response})
+    return response
 
 # Initialize Whisper for STT
 whisper_model = whisper.load_model("base")
@@ -72,7 +99,7 @@ def text_to_speech(text):
     tts.tts_to_file(text=text, file_path="output.wav")
 
 # Streamlit UI
-st.title("Chatbot with RAG + Built-in Mic STT")
+st.title("Chatbot with RAG + Multi-Step Retrieval")
 
 # Text Input
 user_input = st.text_input("Ask something:")
