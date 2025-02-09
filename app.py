@@ -12,10 +12,6 @@ from streamlit_mic_recorder import mic_recorder  # Streamlit mic recorder
 
 st.set_page_config(page_title="Chatbot with RAG + Mic", layout="centered")
 
-# Initialize session state for chat history
-if "chat_history" not in st.session_state:
-    st.session_state.chat_history = []
-
 # Set API key
 api_key = os.getenv("GROQ_API_KEY")
 if not api_key:
@@ -46,24 +42,31 @@ embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-
 db = FAISS.from_documents(all_splits, embeddings)
 db.save_local("faiss_index")
 
-# Function to handle multi-step retrieval
-def retrieve_relevant_docs(query):
+# Initialize session state for conversation history
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
+
+# Function for multi-step retrieval
+def multi_step_retrieval(query):
     retrieved_docs = db.similarity_search(query, k=3)
     context = "\n".join([doc.page_content for doc in retrieved_docs])
+    
+    # If the context is too short, try expanding the search
+    if len(context) < 500:
+        additional_query = " ".join(query.split()[:5])  # Use first few words as a refined query
+        additional_docs = db.similarity_search(additional_query, k=3)
+        additional_context = "\n".join([doc.page_content for doc in additional_docs])
+        context += "\n" + additional_context
+    
     return context
 
-# Function to handle conversation-style responses
+# Function to handle conversation-style chatbot response
 def chat_with_rag(query):
-    # Retrieve relevant context
-    context = retrieve_relevant_docs(query)
+    context = multi_step_retrieval(query)
     
-    # Format chat history for context
-    history = "\n".join([f"User: {msg['user']}\nChatbot: {msg['bot']}" for msg in st.session_state.chat_history])
-    
-    # Structure input prompt with history
-    messages = [
-        {"role": "user", "content": f"Previous conversation:\n{history}\n\nUser Query: {query}\n\nRelevant Context:\n{context}\n\nChatbot:"}
-    ]
+    messages = [{"role": "system", "content": "You are a helpful chatbot using retrieved knowledge."}]
+    messages += st.session_state.chat_history  # Include past messages
+    messages.append({"role": "user", "content": f"User Query: {query}\n\nRelevant Context:\n{context}\n\nChatbot:"})
     
     completion = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
@@ -77,7 +80,9 @@ def chat_with_rag(query):
     response = completion.choices[0].message.content
     
     # Store conversation history
-    st.session_state.chat_history.append({"user": query, "bot": response})
+    st.session_state.chat_history.append({"role": "user", "content": query})
+    st.session_state.chat_history.append({"role": "assistant", "content": response})
+    
     return response
 
 # Initialize Whisper for STT
@@ -97,11 +102,6 @@ def text_to_speech(text):
 
 # Streamlit UI
 st.title("Chatbot with RAG + Built-in Mic STT")
-
-# Display chat history
-for msg in st.session_state.chat_history:
-    st.write(f"**You:** {msg['user']}")
-    st.write(f"**Chatbot:** {msg['bot']}")
 
 # Text Input
 user_input = st.text_input("Ask something:")
