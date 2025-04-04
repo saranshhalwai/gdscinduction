@@ -21,8 +21,9 @@ To get started with this project, follow these steps:
 
 ## Project Structure
 
-- `file1.py`: Contains the main code for the chatbot with RAG and mic functionality.
+- `app.py`: Contains the main code for the chatbot with RAG and mic functionality.
 - `requirements.txt`: Lists the dependencies required for the project.
+- `ES103.docx`: notes given to the RAG chatbot.
 
 ## How It Works
 
