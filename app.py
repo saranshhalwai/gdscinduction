@@ -9,6 +9,8 @@ from docx import Document as DocxDocument
 import whisper
 from TTS.api import TTS
 from streamlit_mic_recorder import mic_recorder  # Streamlit mic recorder
+from dotenv import load_dotenv
+load_dotenv()
 
 st.set_page_config(page_title="Chatbot with RAG + Mic", layout="centered")
 
